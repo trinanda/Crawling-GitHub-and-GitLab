@@ -88,3 +88,4 @@ ENV/
 
 .idea
 .flaskenv
+.pytest_cache
