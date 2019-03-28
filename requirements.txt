@@ -12,3 +12,5 @@ celery
 psycopg2-binary
 SQLAlchemy-Utils
 gunicorn
+flask-restplus
+requests
