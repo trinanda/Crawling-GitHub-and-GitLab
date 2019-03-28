@@ -30,7 +30,7 @@ MarkupSafe==1.1.1
 marshmallow==2.19.1
 marshmallow-sqlalchemy==0.16.1
 more-itertools==6.0.0
--e git+git@github.com:trinanda/Crawling-GitHub-and-GitLab.git@b9ab8e44ea4d3d49fe4aab30d23367b76767f1b5#egg=myapi
+-e git+git@github.com:trinanda/Crawling-GitHub-and-GitLab.git@6a25452d6c395f727731507ea20de89607aa539c#egg=myapi
 passlib==1.7.1
 pluggy==0.9.0
 psycopg2-binary==2.7.7
