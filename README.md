@@ -13,3 +13,6 @@
 2. documentation of :
 - credentials/auth
 - flow of the API for each metrics (how to access them)
+
+#### deployment
+- you can see the deployment change on this app at environment menu on this repo or you just can click this link https://crawling-repositories.herokuapp.com/api/v1/
