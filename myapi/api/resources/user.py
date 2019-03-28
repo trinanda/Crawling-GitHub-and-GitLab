@@ -1,65 +1,47 @@
 from flask import request
-from flask_restful import Resource
-from flask_jwt_extended import jwt_required
+from flask_restplus import Resource, Namespace
+# from flask_jwt_extended import jwt_required
 
+from myapi.commons.schemas import UserSchema
+from myapi.github_crawler.github_user import get_github_user_data
 from myapi.models import User
-from myapi.extensions import ma, db
-from myapi.commons.pagination import paginate
+from myapi.extensions import db
 
 
-class UserSchema(ma.ModelSchema):
-
-    password = ma.String(load_only=True, required=True)
-
-    class Meta:
-        model = User
-        sqla_session = db.session
+api = Namespace('user', description='User repo')
 
 
+@api.route('/')
 class UserResource(Resource):
-    """Single object resource
-    """
-    method_decorators = [jwt_required]
 
-    def get(self, user_id):
-        schema = UserSchema()
-        user = User.query.get_or_404(user_id)
-        return {"user": schema.dump(user).data}
+    query_parser = api.parser()
+    query_parser.add_argument('username', location='args', type=str)
+    
+    def get(self, query_parser=query_parser):
 
-    def put(self, user_id):
-        schema = UserSchema(partial=True)
-        user = User.query.get_or_404(user_id)
-        user, errors = schema.load(request.json, instance=user)
-        if errors:
-            return errors, 422
+        args = query_parser.parse_args()
+        username = args['username']
 
-        return {"msg": "user updated", "user": schema.dump(user).data}
+        github_user = get_github_user_data(username)
 
-    def delete(self, user_id):
-        user = User.query.get_or_404(user_id)
-        db.session.delete(user)
-        db.session.commit()
-
-        return {"msg": "user deleted"}
-
-
-class UserList(Resource):
-    """Creation and get_all
-    """
-    method_decorators = [jwt_required]
-
-    def get(self):
-        schema = UserSchema(many=True)
-        query = User.query
-        return paginate(query, schema)
+        return github_user
 
     def post(self):
         schema = UserSchema()
-        user, errors = schema.load(request.json)
-        if errors:
-            return errors, 422
+        github_field = request.json
+        username = github_field.get('username')
 
-        db.session.add(user)
-        db.session.commit()
+        github_user_data = get_github_user_data(username)
 
-        return {"msg": "user created", "user": schema.dump(user).data}, 201
+        user = User(**github_user_data)
+
+        try:
+            db.session.add(user)
+            db.session.commit()
+        except Exception as e:
+            return str(e)
+
+        return {
+            'status': 'success',
+            'user': schema.dump(user).data
+        }
